@@ -26,7 +26,15 @@ export default function LoginPage() {
       setError("Invalid email or password");
       setSubmitting(false);
     } else {
-      router.push("/");
+      const sessionRes = await fetch("/api/auth/session");
+      const session = await sessionRes.json();
+      const role = session?.user?.role;
+
+      if (role === "IC_MEMBER") router.push("/ic");
+      else if (role === "RESPONDER") router.push("/responder");
+      else if (role === "ADMIN") router.push("/admin");
+      else router.push("/my-cases");
+
       router.refresh();
     }
   };
