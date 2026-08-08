@@ -45,3 +45,5 @@ next-env.d.ts
 # local evidence storage (dev only)
 public/uploads/evidence/*
 !public/uploads/evidence/.gitkeep
+.vercel
+.env*.local
