@@ -1,13 +1,106 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+enum Role {
+  COMPLAINANT
+  IC_MEMBER
+  RESPONDER
+  ADMIN
+}
+
+enum Severity {
+  URGENT
+  ROUTINE
+}
+
+enum CaseStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  ACTION_TAKEN
+  CLOSED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String?  @unique
+  passwordHash  String?
+  role          Role     @default(COMPLAINANT)
+  isAnonymous   Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  cases         Case[]         @relation("ComplainantCases")
+  assignedCases Case[]         @relation("AssignedCases")
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Case {
+  id                 String        @id @default(cuid())
+  trackingCode       String        @unique @map("tracking_code")
+  complainantId      String?       @map("complainant_id")
+  complainant        User?         @relation("ComplainantCases", fields: [complainantId], references: [id])
+  category           String
+  description        String
+  severity           Severity      @default(ROUTINE)
+  severityReasoning  String?       @map("severity_reasoning")
+  status             CaseStatus    @default(SUBMITTED)
+  retaliationFlag    Boolean       @default(false) @map("retaliation_flag")
+  assignedToId       String?       @map("assigned_to_id")
+  assignedTo         User?         @relation("AssignedCases", fields: [assignedToId], references: [id])
+  immediateDanger    Boolean       @default(false) @map("immediate_danger")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  evidence      Evidence[]
+  auditLogs     AuditLog[]
+  notifications Notification[]
+
+  @@map("cases")
+}
+
+model Evidence {
+  id          String   @id @default(cuid())
+  caseId      String   @map("case_id")
+  case        Case     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  fileHash    String   @map("file_hash")
+  storageUrl  String   @map("storage_url")
+  fileName    String?  @map("file_name")
+  mimeType    String?  @map("mime_type")
+  uploadedAt  DateTime @default(now()) @map("uploaded_at")
+
+  @@map("evidence")
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  caseId       String   @map("case_id")
+  case         Case     @relation(fields: [caseId], references: [id])
+  action       String
+  actorRole    Role     @map("actor_role")
+  actorId      String?  @map("actor_id")
+  rowHash      String   @map("row_hash")
+  prevRowHash  String?  @map("prev_row_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([caseId, createdAt])
+  @@map("audit_log")
+}
+
+model Notification {
+  id      String    @id @default(cuid())
+  userId  String    @map("user_id")
+  user    User      @relation(fields: [userId], references: [id])
+  caseId  String    @map("case_id")
+  case    Case      @relation(fields: [caseId], references: [id])
+  type    String
+  sentAt  DateTime  @default(now()) @map("sent_at")
+  readAt  DateTime? @map("read_at")
+
+  @@map("notifications")
 }
