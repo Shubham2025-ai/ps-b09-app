@@ -22,50 +22,53 @@ export default function AdminAuditPage() {
       .finally(() => setLoading(false));
   }, [session, status, router]);
 
-  if (status === "loading" || loading) return <div style={{ padding: 40 }}>Verifying all case audit chains...</div>;
+  if (status === "loading" || loading)
+    return (
+      <div className="min-h-screen bg-ops-bg text-ops-text p-10">
+        Verifying all case audit chains...
+      </div>
+    );
 
   const brokenCount = results.filter((r) => !r.valid).length;
 
   return (
-    <div style={{ maxWidth: 800, margin: "40px auto", padding: 24 }}>
-      <h1>System-Wide Audit Integrity</h1>
-      <p style={{ color: "#666" }}>
-        {results.length} case(s) checked · {brokenCount === 0 ? "All chains intact" : `${brokenCount} chain(s) BROKEN`}
-      </p>
+    <div className="min-h-screen bg-ops-bg text-ops-text">
+      <div className="max-w-3xl mx-auto px-6 py-10">
+        <h1 className="text-xl font-semibold">System-Wide Audit Integrity</h1>
+        <p className="text-ops-text-muted mb-6">
+          {results.length} case(s) checked ·{" "}
+          {brokenCount === 0 ? (
+            <span className="text-status-resolved">All chains intact</span>
+          ) : (
+            <span className="text-status-urgent">{brokenCount} chain(s) BROKEN</span>
+          )}
+        </p>
 
-      <div style={{ marginTop: 24 }}>
-        {results.map((r) => (
-          <div
-            key={r.caseId}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              padding: 16,
-              marginBottom: 8,
-              borderRadius: 8,
-              border: `2px solid ${r.valid ? "#bbf7d0" : "#fca5a5"}`,
-              background: r.valid ? "#f0fdf4" : "#fef2f2",
-            }}
-          >
-            <div>
-              <strong>{r.trackingCode}</strong>
-              {!r.valid && (
-                <p style={{ margin: "4px 0 0", fontSize: 13, color: "#b91c1c" }}>
-                  Chain broken at row {r.brokenAtRowId} — action &quot;{r.brokenAtAction}&quot; does not match its recorded hash
-                </p>
-              )}
-            </div>
-            <span
-              style={{
-                fontSize: 24,
-                color: r.valid ? "#16a34a" : "#dc2626",
-              }}
+        <div className="space-y-2">
+          {results.map((r) => (
+            <div
+              key={r.caseId}
+              className={`flex items-center justify-between p-4 rounded-xl border ${
+                r.valid
+                  ? "border-status-resolved bg-status-resolved-bg"
+                  : "border-status-urgent bg-status-urgent-bg"
+              }`}
             >
-              {r.valid ? "✓" : "✗ BROKEN"}
-            </span>
-          </div>
-        ))}
+              <div>
+                <strong>{r.trackingCode}</strong>
+                {!r.valid && (
+                  <p className="text-sm text-status-urgent mt-1 mb-0">
+                    Chain broken at row {r.brokenAtRowId} — action &quot;{r.brokenAtAction}&quot;
+                    does not match its recorded hash
+                  </p>
+                )}
+              </div>
+              <span className={`text-2xl ${r.valid ? "text-status-resolved" : "text-status-urgent"}`}>
+                {r.valid ? "✓" : "✗ BROKEN"}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

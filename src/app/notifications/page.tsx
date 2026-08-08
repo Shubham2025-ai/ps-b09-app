@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 export default function NotificationsPage() {
   const { data: session, status } = useSession();
@@ -30,35 +29,47 @@ export default function NotificationsPage() {
     );
   };
 
-  if (status === "loading" || loading) return <div style={{ padding: 40 }}>Loading...</div>;
+  const isOpsRole = ["IC_MEMBER", "RESPONDER", "ADMIN"].includes(session?.user?.role || "");
+  const bgClass = isOpsRole ? "bg-ops-bg text-ops-text" : "bg-calm-bg text-calm-text";
+  const surfaceClass = isOpsRole
+    ? "bg-ops-surface border-ops-border"
+    : "bg-calm-surface border-calm-border";
+  const mutedClass = isOpsRole ? "text-ops-text-muted" : "text-calm-text-muted";
+  const unreadBg = isOpsRole ? "bg-ops-accent/10" : "bg-calm-accent/10";
+
+  if (status === "loading" || loading)
+    return <div className={`min-h-screen ${bgClass} p-10`}>Loading...</div>;
 
   return (
-    <div style={{ maxWidth: 600, margin: "40px auto", padding: 24 }}>
-      <h1>Notifications</h1>
-      {notifications.length === 0 && <p style={{ color: "#888" }}>No notifications yet.</p>}
+    <div className={`min-h-screen ${bgClass}`}>
+      <div className="max-w-xl mx-auto px-6 py-10">
+        <h1 className="text-xl font-semibold mb-1">Notifications</h1>
+        {notifications.length === 0 && (
+          <p className={`${mutedClass} mt-4`}>No notifications yet.</p>
+        )}
 
-      {notifications.map((n) => (
-        <div
-          key={n.id}
-          onClick={() => !n.readAt && markRead(n.id)}
-          style={{
-            padding: 12,
-            marginBottom: 8,
-            borderRadius: 6,
-            border: "1px solid #eee",
-            background: n.readAt ? "#fff" : "#f0f9ff",
-            cursor: n.readAt ? "default" : "pointer",
-          }}
-        >
-          <p style={{ margin: 0, fontSize: 13, color: "#888" }}>
-            {n.type.replace("_", " ")} · {new Date(n.sentAt).toLocaleString()}
-          </p>
-          <p style={{ margin: "4px 0 0" }}>
-            Case {n.case.trackingCode} — {n.case.category}
-          </p>
-          {!n.readAt && <span style={{ fontSize: 11, color: "#2563eb" }}>Click to mark read</span>}
+        <div className="space-y-2 mt-4">
+          {notifications.map((n) => (
+            <div
+              key={n.id}
+              onClick={() => !n.readAt && markRead(n.id)}
+              className={`p-3 rounded-lg border ${surfaceClass} ${
+                !n.readAt ? `${unreadBg} cursor-pointer` : ""
+              }`}
+            >
+              <p className={`text-xs ${mutedClass} m-0`}>
+                {n.type.replace(/_/g, " ")} · {new Date(n.sentAt).toLocaleString()}
+              </p>
+              <p className="m-0 mt-1">
+                Case {n.case.trackingCode} — {n.case.category}
+              </p>
+              {!n.readAt && (
+                <span className="text-xs text-ops-accent">Click to mark read</span>
+              )}
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
   );
 }
