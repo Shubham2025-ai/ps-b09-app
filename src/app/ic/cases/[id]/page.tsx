@@ -88,9 +88,17 @@ export default function CaseDetailPage() {
               <div key={e.id} className="p-3 border border-ops-border rounded-md mb-2">
                 <p className="font-semibold">{e.fileName}</p>
                 <p className="text-xs text-ops-text-muted break-all font-mono">Hash: {e.fileHash}</p>
-                <a href={e.storageUrl} target="_blank" rel="noreferrer" className="text-ops-accent">
+                <button
+                  onClick={async () => {
+                    const res = await fetch(`/api/evidence/${e.id}/view-url`);
+                    const data = await res.json();
+                    if (data.url) window.open(data.url, "_blank");
+                    else alert("Could not load file");
+                  }}
+                  className="text-ops-accent bg-transparent border-none cursor-pointer p-0 underline text-sm"
+                >
                   View file
-                </a>
+                </button>
               </div>
             ))}
           </div>

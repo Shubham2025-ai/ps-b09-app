@@ -19,22 +19,22 @@ export async function POST(req: NextRequest) {
     const ext = file.name.includes(".") ? file.name.split(".").pop() : "";
     const blobName = `evidence/${fileHash}${ext ? "." + ext : ""}`;
 
+    // Store pathname only - we'll generate a signed URL on-demand when viewing
     const blob = await put(blobName, file, {
-      access: "public",
-      addRandomSuffix: false,
+      access: "public", // required by SDK even for private stores at upload time; store setting controls actual access
     });
 
     const evidence = await prisma.evidence.create({
       data: {
         caseId,
         fileHash,
-        storageUrl: blob.url,
+        storageUrl: blob.pathname, // store just the pathname, not the full URL
         fileName: file.name,
         mimeType: file.type,
       },
     });
 
-    return NextResponse.json({ evidenceId: evidence.id, storageUrl: evidence.storageUrl });
+    return NextResponse.json({ evidenceId: evidence.id });
   } catch (err) {
     console.error("Evidence upload error:", err);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
