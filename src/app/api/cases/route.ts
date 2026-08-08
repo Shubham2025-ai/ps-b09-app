@@ -37,6 +37,25 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Retaliation-risk check: if this complainant (non-anonymous) has an existing
+    // open case in the same category, flag this new one
+    if (complainantId) {
+      const priorCase = await prisma.case.findFirst({
+        where: {
+          complainantId,
+          category,
+          status: { not: "CLOSED" },
+          id: { not: newCase.id },
+        },
+      });
+      if (priorCase) {
+        await prisma.case.update({
+          where: { id: newCase.id },
+          data: { retaliationFlag: true },
+        });
+      }
+    }
+
     await appendAuditLog(newCase.id, "SUBMITTED", "COMPLAINANT", complainantId);
 
     if (classification.severity === "URGENT") {

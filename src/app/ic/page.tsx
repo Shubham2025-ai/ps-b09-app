@@ -27,64 +27,68 @@ export default function ICDashboardPage() {
       router.push("/login");
       return;
     }
-
     fetch("/api/ic/cases")
       .then((res) => res.json())
       .then((data) => setCases(data))
       .finally(() => setLoading(false));
   }, [session, status, router]);
 
-  if (status === "loading" || loading) return <div style={{ padding: 40 }}>Loading...</div>;
+  if (status === "loading" || loading)
+    return <div className="min-h-screen bg-ops-bg text-ops-text p-10">Loading...</div>;
 
   return (
-    <div style={{ maxWidth: 900, margin: "40px auto", padding: 24 }}>
-      <h1>Case Queue</h1>
-      <p style={{ color: "#666" }}>{cases.length} cases, urgent first</p>
+    <div className="min-h-screen bg-ops-bg text-ops-text">
+      <div className="max-w-4xl mx-auto px-6 py-10">
+        <h1 className="text-xl font-semibold">Case Queue</h1>
+        <p className="text-ops-text-muted mb-6">{cases.length} cases, urgent first</p>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 16 }}>
-        <thead>
-          <tr style={{ borderBottom: "2px solid #ddd", textAlign: "left" }}>
-            <th style={{ padding: 8 }}>Tracking Code</th>
-            <th style={{ padding: 8 }}>Category</th>
-            <th style={{ padding: 8 }}>Severity</th>
-            <th style={{ padding: 8 }}>Status</th>
-            <th style={{ padding: 8 }}>Flags</th>
-            <th style={{ padding: 8 }}>Submitted</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cases.map((c) => (
-            <tr key={c.id} style={{ borderBottom: "1px solid #eee" }}>
-              <td style={{ padding: 8 }}>
-                <Link href={`/ic/cases/${c.id}`}>{c.trackingCode}</Link>
-              </td>
-              <td style={{ padding: 8 }}>{c.category}</td>
-              <td style={{ padding: 8 }}>
-                <span
-                  style={{
-                    padding: "2px 8px",
-                    borderRadius: 4,
-                    fontSize: 12,
-                    background: c.severity === "URGENT" ? "#fee2e2" : "#f3f4f6",
-                    color: c.severity === "URGENT" ? "#b91c1c" : "#555",
-                  }}
-                >
-                  {c.severity}
-                </span>
-              </td>
-              <td style={{ padding: 8 }}>{c.status}</td>
-              <td style={{ padding: 8 }}>
-                {c.retaliationFlag && (
-                  <span style={{ fontSize: 12, color: "#b45309" }}>⚠ Retaliation risk</span>
-                )}
-              </td>
-              <td style={{ padding: 8, fontSize: 13, color: "#888" }}>
-                {new Date(c.createdAt).toLocaleDateString()}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div className="rounded-xl border border-ops-border overflow-hidden">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-ops-border bg-ops-surface text-left text-sm text-ops-text-muted">
+                <th className="p-3">Tracking Code</th>
+                <th className="p-3">Category</th>
+                <th className="p-3">Severity</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Flags</th>
+                <th className="p-3">Submitted</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cases.map((c) => (
+                <tr key={c.id} className="border-b border-ops-border last:border-0 hover:bg-ops-surface">
+                  <td className="p-3">
+                    <Link href={`/ic/cases/${c.id}`} className="text-ops-accent font-medium">
+                      {c.trackingCode}
+                    </Link>
+                  </td>
+                  <td className="p-3">{c.category}</td>
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-0.5 rounded text-xs font-medium ${
+                        c.severity === "URGENT"
+                          ? "bg-status-urgent-bg text-status-urgent"
+                          : "bg-status-routine-bg text-status-routine"
+                      }`}
+                    >
+                      {c.severity}
+                    </span>
+                  </td>
+                  <td className="p-3 text-sm">{c.status}</td>
+                  <td className="p-3">
+                    {c.retaliationFlag && (
+                      <span className="text-xs text-status-urgent">⚠ Retaliation risk</span>
+                    )}
+                  </td>
+                  <td className="p-3 text-xs text-ops-text-muted">
+                    {new Date(c.createdAt).toLocaleDateString()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

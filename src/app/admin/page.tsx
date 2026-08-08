@@ -13,7 +13,7 @@ export default function AdminDashboardPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("IC_MEMBER");
+  const [role, setRole] = useState("COMPLAINANT");
   const [creating, setCreating] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -84,6 +84,7 @@ export default function AdminDashboardPage() {
           style={{ padding: 8 }}
         />
         <select value={role} onChange={(e) => setRole(e.target.value)} style={{ padding: 8 }}>
+          <option value="COMPLAINANT">Complainant</option>
           <option value="IC_MEMBER">IC Member</option>
           <option value="RESPONDER">Responder</option>
           <option value="ADMIN">Admin</option>
