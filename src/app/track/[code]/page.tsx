@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { CheckCircle2, Circle, XCircle } from "lucide-react";
 
 const STATUS_STEPS = ["SUBMITTED", "UNDER_REVIEW", "ACTION_TAKEN", "CLOSED"];
 const STATUS_LABELS: Record<string, string> = {
@@ -34,7 +35,8 @@ export default function TrackCasePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-calm-bg flex items-center justify-center">
+      <div className="min-h-screen bg-calm-bg flex flex-col items-center justify-center gap-3">
+        <XCircle size={32} className="text-danger-text" />
         <p className="text-danger-text">{error}</p>
       </div>
     );
@@ -52,11 +54,11 @@ export default function TrackCasePage() {
         <div>
           {STATUS_STEPS.map((s, i) => (
             <div key={s} className="flex items-center mb-5">
-              <div
-                className={`w-5 h-5 rounded-full mr-4 flex-shrink-0 ${
-                  i <= currentIndex ? "bg-calm-accent" : "bg-calm-border"
-                }`}
-              />
+              {i <= currentIndex ? (
+                <CheckCircle2 size={20} className="text-calm-accent mr-4 flex-shrink-0" />
+              ) : (
+                <Circle size={20} className="text-calm-border mr-4 flex-shrink-0" />
+              )}
               <span className={i <= currentIndex ? "text-calm-text" : "text-calm-text-muted"}>
                 {STATUS_LABELS[s]}
               </span>

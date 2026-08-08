@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 
 export default function ResponderCaseDetailPage() {
   const params = useParams();
@@ -22,25 +23,43 @@ export default function ResponderCaseDetailPage() {
     setTimeout(() => router.push("/responder"), 1500);
   };
 
-  if (!caseData) return <div style={{ padding: 40 }}>Loading...</div>;
+  if (!caseData)
+    return <div className="min-h-screen bg-ops-bg text-ops-text p-10">Loading...</div>;
 
   return (
-    <div style={{ maxWidth: 600, margin: "40px auto", padding: 24 }}>
-      <h1 style={{ color: "#ef4444" }}>Urgent: {caseData.trackingCode}</h1>
-      <p><strong>Category:</strong> {caseData.category}</p>
-      <p><strong>Description:</strong> {caseData.description}</p>
-      <p><strong>Immediate Danger:</strong> {caseData.immediateDanger ? "Yes" : "No"}</p>
+    <div className="min-h-screen bg-ops-bg text-ops-text">
+      <div className="max-w-lg mx-auto px-6 py-10">
+        <div className="flex items-center gap-2 text-status-urgent mb-1">
+          <AlertTriangle size={20} />
+          <h1 className="text-xl font-semibold">Urgent: {caseData.trackingCode}</h1>
+        </div>
+        <p className="text-ops-text-muted mb-6">{caseData.category}</p>
 
-      {!acknowledged ? (
-        <button
-          onClick={handleAcknowledge}
-          style={{ padding: "12px 24px", background: "#ef4444", color: "#fff", border: "none", borderRadius: 6, marginTop: 16 }}
-        >
-          Acknowledge & Respond
-        </button>
-      ) : (
-        <p style={{ color: "#166534", marginTop: 16 }}>✓ Acknowledged. Redirecting to queue...</p>
-      )}
+        <div className="bg-ops-surface border border-ops-border rounded-xl p-4 space-y-3 text-sm">
+          <div>
+            <p className="text-ops-text-muted mb-1">Description</p>
+            <p className="m-0">{caseData.description}</p>
+          </div>
+          <div>
+            <p className="text-ops-text-muted mb-1">Immediate Danger</p>
+            <p className="m-0">{caseData.immediateDanger ? "Yes" : "No"}</p>
+          </div>
+        </div>
+
+        {!acknowledged ? (
+          <button
+            onClick={handleAcknowledge}
+            className="mt-6 w-full px-6 py-3.5 rounded-xl bg-status-urgent text-white font-semibold"
+          >
+            Acknowledge & Respond
+          </button>
+        ) : (
+          <div className="mt-6 flex items-center gap-2 text-status-resolved">
+            <CheckCircle2 size={18} />
+            <p className="m-0">Acknowledged. Redirecting to queue...</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
