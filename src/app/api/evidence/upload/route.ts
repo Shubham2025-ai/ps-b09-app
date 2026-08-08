@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { writeFile } from "fs/promises";
-import path from "path";
+import { put } from "@vercel/blob";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
@@ -17,21 +16,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const ext = file.name.includes(".") ? file.name.split(".").pop() : "";
+    const blobName = `evidence/${fileHash}${ext ? "." + ext : ""}`;
 
-    // Use the hash as the filename to avoid collisions and keep it content-addressed
-    const ext = path.extname(file.name) || "";
-    const storedFileName = `${fileHash}${ext}`;
-    const storedPath = path.join(process.cwd(), "public", "uploads", "evidence", storedFileName);
-
-    await writeFile(storedPath, buffer);
+    const blob = await put(blobName, file, {
+      access: "public",
+      addRandomSuffix: false,
+    });
 
     const evidence = await prisma.evidence.create({
       data: {
         caseId,
         fileHash,
-        storageUrl: `/uploads/evidence/${storedFileName}`,
+        storageUrl: blob.url,
         fileName: file.name,
         mimeType: file.type,
       },
