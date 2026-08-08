@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     if (classification.severity === "URGENT") {
       const responders = await prisma.user.findMany({ where: { role: "RESPONDER" } });
       await Promise.all(
-        responders.map((r) =>
+        responders.map((r: { id: string }) =>
           prisma.notification.create({
             data: {
               userId: r.id,

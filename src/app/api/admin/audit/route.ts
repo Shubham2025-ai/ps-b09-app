@@ -14,7 +14,7 @@ export async function GET() {
   });
 
   const results = await Promise.all(
-    cases.map(async (c) => {
+    cases.map(async (c: { id: string; trackingCode: string }) => {
       const verification = await verifyChain(c.id);
       return {
         caseId: c.id,

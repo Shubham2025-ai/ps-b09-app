@@ -23,7 +23,7 @@ export async function GET() {
   });
 
   // Urgent first, then by age within each group
-  const sorted = cases.sort((a, b) => {
+  const sorted = cases.sort((a: { severity: string }, b: { severity: string }) => {
     if (a.severity === b.severity) return 0;
     return a.severity === "URGENT" ? -1 : 1;
   });
