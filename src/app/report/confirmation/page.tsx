@@ -1,35 +1,46 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function ConfirmationPage() {
+function ConfirmationContent() {
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
   const severity = searchParams.get("severity");
 
   return (
-    <div style={{ maxWidth: 480, margin: "80px auto", padding: 24, textAlign: "center" }}>
-      <h1>Report Submitted</h1>
-      <p style={{ color: "#555" }}>
-        Your report has been received and routed automatically.
-      </p>
-
-      {code && (
-        <div style={{ margin: "24px 0", padding: 20, background: "#f5f5f5", borderRadius: 8 }}>
-          <p style={{ margin: 0, fontSize: 13, color: "#888" }}>Your tracking code — save this</p>
-          <p style={{ fontSize: 24, fontWeight: 700, letterSpacing: 1 }}>{code}</p>
-        </div>
-      )}
-
-      {severity === "URGENT" && (
-        <p style={{ color: "#b91c1c" }}>
-          This has been flagged for urgent response. A responder has been notified.
+    <div className="min-h-screen bg-calm-bg text-calm-text flex items-center justify-center">
+      <div className="w-full max-w-md px-6 text-center">
+        <h1 className="text-2xl font-serif-warm mb-2">Report Submitted</h1>
+        <p className="text-calm-text-muted">
+          Your report has been received and routed automatically.
         </p>
-      )}
 
-      <a href={`/track/${code}`} style={{ display: "inline-block", marginTop: 16 }}>
-        Track this case →
-      </a>
+        {code && (
+          <div className="my-6 p-5 bg-calm-surface border border-calm-border rounded-xl">
+            <p className="text-xs text-calm-text-muted mb-1">Your tracking code — save this</p>
+            <p className="text-2xl font-bold tracking-wide">{code}</p>
+          </div>
+        )}
+
+        {severity === "URGENT" && (
+          <p className="text-danger-text">
+            This has been flagged for urgent response. A responder has been notified.
+          </p>
+        )}
+
+        <a href={`/track/${code}`} className="inline-block mt-4 text-calm-accent">
+          Track this case →
+        </a>
+      </div>
     </div>
+  );
+}
+
+export default function ConfirmationPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-calm-bg" />}>
+      <ConfirmationContent />
+    </Suspense>
   );
 }

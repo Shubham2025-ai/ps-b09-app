@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { hashFile } from "@/lib/clientHash";
 
@@ -13,7 +13,7 @@ const CATEGORIES = [
   "Other",
 ];
 
-export default function ReportWizardPage() {
+function ReportWizardContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isAnonymous = searchParams.get("mode") !== "confidential";
@@ -140,7 +140,7 @@ export default function ReportWizardPage() {
             <input type="file" onChange={handleFileChange} className="mb-3" />
             {fileHash && (
               <div className="p-4 bg-calm-surface border border-calm-border rounded-xl text-sm">
-                <p className="mb-1">This proves your file can't be altered later:</p>
+                <p className="mb-1">This proves your file can&apos;t be altered later:</p>
                 <code className="text-xs break-all font-mono-precise text-calm-text-muted">
                   {fileHash}
                 </code>
@@ -224,5 +224,13 @@ export default function ReportWizardPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function ReportWizardPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-calm-bg" />}>
+      <ReportWizardContent />
+    </Suspense>
   );
 }
