@@ -4,9 +4,19 @@ import { generateTrackingCode } from "@/lib/trackingCode";
 import { classifyCase } from "@/lib/groqClassify";
 import { appendAuditLog } from "@/lib/auditLog";
 import { auth } from "@/lib/auth";
+import { rateLimit, getClientKey } from "@/lib/rateLimit";
 
 export async function POST(req: NextRequest) {
   try {
+    const clientKey = getClientKey(req);
+    const limit = rateLimit(`submit:${clientKey}`, 5, 60_000); // 5 submissions per minute per IP
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { error: "Too many submissions. Please wait a moment and try again." },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json();
     const { category, description, immediateDanger, isAnonymous, evidenceFileHashes } = body;
 
@@ -61,7 +71,7 @@ export async function POST(req: NextRequest) {
     if (classification.severity === "URGENT") {
       const responders = await prisma.user.findMany({ where: { role: "RESPONDER" } });
       await Promise.all(
-        responders.map((r: { id: string }) =>
+        responders.map((r) =>
           prisma.notification.create({
             data: {
               userId: r.id,
