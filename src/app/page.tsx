@@ -21,10 +21,14 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-calm-surface border border-calm-border text-xs text-calm-text-muted mb-8 shadow-sm"
         >
-          <ShieldCheck size={14} className="text-calm-accent" />
-          Confidential · Tamper-evident · Verified live
+          <Link
+            href="/about"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-calm-surface border border-calm-border text-xs text-calm-text-muted mb-8 shadow-sm hover:border-calm-accent transition-colors"
+          >
+            <ShieldCheck size={14} className="text-calm-accent" />
+            Confidential · Tamper-evident · Verified live
+          </Link>
         </motion.div>
 
         <motion.h1

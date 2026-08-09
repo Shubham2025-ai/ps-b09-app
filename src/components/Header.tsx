@@ -47,6 +47,13 @@ export default function Header() {
             </Link>
           ))}
 
+          <Link
+            href="/about"
+            className={pathname === "/about" ? `${accent} font-medium` : muted}
+          >
+            About
+          </Link>
+
           {session && (
             <>
               <Link href="/notifications" className={muted} title="Notifications">
