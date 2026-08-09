@@ -53,6 +53,8 @@ This is the technical core of the submission, so it's worth explaining in depth.
 
 We demonstrated this live: a row was manually corrupted directly in Postgres (bypassing the application entirely, using elevated credentials only available to us as developers), and the verification function correctly detected the break and identified the exact row.
 
+**This is also covered by an automated test suite** (`src/lib/__tests__/`, run via `npm test`), which proves the chain-detection logic against corruption at the first row, middle row, last row, and a forged-`prevRowHash` attack — 9 tests total, all passing. This means the live demo isn't a one-off observation; the tamper-detection property is verified as a logical guarantee of the algorithm, not just something that happened to work when we tried it once.
+
 **Honest scope of this guarantee:** the `app_runtime` role — which is what the deployed application actually connects as — cannot modify or delete audit rows under any circumstances, including a compromised application server or a bug in our own code. This is the threat model the system defends against. It does not defend against someone holding the separate database *owner* credentials, who retains full privileges by necessity (schema migrations require them). In a production deployment, those owner credentials would be a break-glass credential: held by a small number of people, used only for migrations, and ideally logged/audited separately at the infrastructure level (e.g. Neon's own audit logging, or a bastion-host access pattern) — rather than living in a developer's `.env` file as it does in this prototype. We call this out explicitly rather than let the "immutable" claim be read as absolute.
 
 ## 5. Feature Checklist Against PS-B09
@@ -68,7 +70,7 @@ We demonstrated this live: a row was manually corrupted directly in Postgres (by
 | Role-based access | ✅ | 4 roles (Complainant, IC Member, Responder, Admin), enforced at query layer |
 | Complaint routing | ✅ | AI severity classifier routes urgent → Responder, routine → IC |
 | Real-time case tracking | ✅ | Status stepper (complainant), live queue (staff) |
-| Retaliation-risk flags | ✅ | Rule-based: repeated same-category filings by same complainant |
+| Retaliation-risk flags | ✅ | Multi-signal weighted scoring (see Section 9) |
 | Urgent safety escalation | ✅ | Self-reported danger flag hard-overrides to URGENT |
 | Controlled notifications | ✅ | In-app notification center, scoped to relevant events |
 

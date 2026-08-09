@@ -1,3 +1,4 @@
+import { assessRetaliationRisk } from "@/lib/retaliationRisk";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateTrackingCode } from "@/lib/trackingCode";
@@ -49,20 +50,18 @@ export async function POST(req: NextRequest) {
 
     // Retaliation-risk check: if this complainant (non-anonymous) has an existing
     // open case in the same category, flag this new one
+    // Multi-signal retaliation-risk assessment (see src/lib/retaliationRisk.ts)
     if (complainantId) {
-      const priorCase = await prisma.case.findFirst({
-        where: {
-          complainantId,
-          category,
-          status: { not: "CLOSED" },
-          id: { not: newCase.id },
-        },
-      });
-      if (priorCase) {
+      const assessment = await assessRetaliationRisk(complainantId, category, newCase.id);
+      if (assessment.flagged) {
         await prisma.case.update({
           where: { id: newCase.id },
           data: { retaliationFlag: true },
         });
+        console.log(
+          `Retaliation flag triggered for case ${newCase.id}: score=${assessment.score}`,
+          assessment.signals.filter((s) => s.triggered)
+        );
       }
     }
 
