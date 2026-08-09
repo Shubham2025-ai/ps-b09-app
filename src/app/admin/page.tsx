@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Users as UsersIcon, ShieldCheck, UserCog } from "lucide-react";
 
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession();
@@ -59,11 +60,39 @@ export default function AdminDashboardPage() {
   if (status === "loading" || loading)
     return <div className="min-h-screen bg-ops-bg text-ops-text p-10">Loading...</div>;
 
+  const icCount = users.filter((u) => u.role === "IC_MEMBER").length;
+  const responderCount = users.filter((u) => u.role === "RESPONDER").length;
+  const complainantCount = users.filter((u) => u.role === "COMPLAINANT").length;
+
   return (
     <div className="min-h-screen bg-ops-bg text-ops-text">
       <div className="max-w-3xl mx-auto px-6 py-10">
         <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-        <Link href="/admin/audit" className="inline-block mt-2 mb-8 text-ops-accent text-sm">
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
+          <div className="p-4 rounded-xl bg-ops-surface border border-ops-border">
+            <UsersIcon size={16} className="text-ops-text-muted mb-2" />
+            <p className="text-2xl font-semibold m-0">{users.length}</p>
+            <p className="text-xs text-ops-text-muted m-0">Total users</p>
+          </div>
+          <div className="p-4 rounded-xl bg-ops-surface border border-ops-border">
+            <ShieldCheck size={16} className="text-ops-text-muted mb-2" />
+            <p className="text-2xl font-semibold m-0">{icCount}</p>
+            <p className="text-xs text-ops-text-muted m-0">IC members</p>
+          </div>
+          <div className="p-4 rounded-xl bg-status-urgent-bg border border-status-urgent">
+            <UserCog size={16} className="text-status-urgent mb-2" />
+            <p className="text-2xl font-semibold m-0 text-status-urgent">{responderCount}</p>
+            <p className="text-xs text-status-urgent m-0">Responders</p>
+          </div>
+          <div className="p-4 rounded-xl bg-ops-surface border border-ops-border">
+            <UsersIcon size={16} className="text-ops-text-muted mb-2" />
+            <p className="text-2xl font-semibold m-0">{complainantCount}</p>
+            <p className="text-xs text-ops-text-muted m-0">Complainants</p>
+          </div>
+        </div>
+
+        <Link href="/admin/audit" className="inline-block mb-8 text-ops-accent text-sm">
           → System-wide Audit Integrity Check
         </Link>
 

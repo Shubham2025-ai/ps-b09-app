@@ -2,16 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useToast } from "@/components/Toast";
 
 export default function CaseDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const { show } = useToast();
 
   const [caseData, setCaseData] = useState<any>(null);
   const [tab, setTab] = useState<"overview" | "evidence" | "audit" | "actions">("overview");
   const [auditData, setAuditData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [statusMessage, setStatusMessage] = useState("");
 
   const loadCase = () => {
     fetch(`/api/ic/cases/${id}`)
@@ -31,15 +32,13 @@ export default function CaseDetailPage() {
   };
 
   const updateStatus = async (status: string) => {
-    setStatusMessage("Updating...");
     await fetch(`/api/ic/cases/${id}/status`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
     loadCase();
-    setStatusMessage(`Status updated to ${status}`);
-    setTimeout(() => setStatusMessage(""), 3000);
+    show(`Status updated to ${status}`);
   };
 
   if (loading || !caseData) return <div className="p-10 text-ops-text">Loading...</div>;
@@ -93,7 +92,7 @@ export default function CaseDetailPage() {
                     const res = await fetch(`/api/evidence/${e.id}/view-url`);
                     const data = await res.json();
                     if (data.url) window.open(data.url, "_blank");
-                    else alert("Could not load file");
+                    else show("Could not load file", "error");
                   }}
                   className="text-ops-accent bg-transparent border-none cursor-pointer p-0 underline text-sm"
                 >
@@ -113,7 +112,7 @@ export default function CaseDetailPage() {
                   className={`flex items-center gap-3 rounded-lg p-4 mb-6 border ${
                     auditData.verification.valid
                       ? "bg-status-resolved-bg border-status-resolved"
-                      : "bg-status-urgent-bg border-status-urgent"
+                      : "bg-status-urgent-bg border-status-urgent animate-pulse"
                   }`}
                 >
                   <span
@@ -186,7 +185,6 @@ export default function CaseDetailPage() {
         {tab === "actions" && (
           <div>
             <p className="font-semibold">Update Status</p>
-            {statusMessage && <p className="text-status-resolved text-sm">{statusMessage}</p>}
             <div className="flex gap-2 flex-wrap">
               {["SUBMITTED", "UNDER_REVIEW", "ACTION_TAKEN", "CLOSED"].map((s) => (
                 <button
