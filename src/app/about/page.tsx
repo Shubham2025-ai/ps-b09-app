@@ -1,5 +1,4 @@
-import { ShieldCheck, Lock, FileText, Fingerprint } from "lucide-react";
-import { HashChainDemo } from "@/components/HashChainDemo";
+import { ShieldCheck, Lock, FileText } from "lucide-react";
 
 export default function AboutPage() {
   return (
@@ -26,19 +25,6 @@ export default function AboutPage() {
               urgent response for immediate danger — each of which maps to a specific
               feature in this system.
             </p>
-          </section>
-
-          <section>
-            <div className="flex items-center gap-2 mb-2">
-              <Fingerprint size={18} className="text-calm-accent" />
-              <h2 className="text-lg font-semibold m-0">See it work</h2>
-            </div>
-            <p className="text-sm text-calm-text-muted leading-relaxed mb-4">
-              This is a simplified version of the same hash-chain logic that protects real
-              audit records — every row's hash depends on the one before it, so any change
-              is immediately detectable.
-            </p>
-            <HashChainDemo />
           </section>
 
           <section>
